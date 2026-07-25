@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MI Router Pro</string>
+    <string name="router_panel">Router Panel</string>
+
+    <string name="tab_home">Home</string>
+    <string name="tab_wifi">WiFi Config</string>
+    <string name="tab_devices">Devices</string>
+    <string name="tab_speed">Speed Test</string>
+    <string name="tab_settings">Settings</string>
+
+    <string name="home_title">Router Dashboard</string>
+    <string name="home_status_connected">Connected</string>
+    <string name="home_status_disconnected">Not Connected</string>
+    <string name="gateway_ip">Gateway IP</string>
+    <string name="ssid_label">Network Name</string>
+    <string name="signal_strength">Signal Strength</string>
+    <string name="ip_address">Device IP</string>
+    <string name="link_speed">Link Speed</string>
+
+    <string name="open_router_panel">Open Router Panel</string>
+    <string name="scan_devices">Scan Devices</string>
+    <string name="start_speed_test">Start Speed Test</string>
+
+    <string name="wifi_config_title">Router Login</string>
+    <string name="wifi_config_hint">Enter your router admin address to manage settings</string>
+    <string name="router_ip_hint">Router IP (e.g. 192.168.100.1)</string>
+    <string name="connect_button">Connect</string>
+    <string name="auto_detect">Auto-Detect Router</string>
+    <string name="known_router_hint">Detected Huawei ONT/Router — default gateway is usually 192.168.100.1 or 192.168.1.1</string>
+
+    <string name="devices_title">Connected Devices</string>
+    <string name="devices_scanning">Scanning network…</string>
+    <string name="devices_none">No devices found yet. Tap refresh to scan.</string>
+
+    <string name="speed_test_title">Internet Speed Test</string>
+    <string name="download_label">Download</string>
+    <string name="upload_label">Upload</string>
+    <string name="ping_label">Ping</string>
+    <string name="mbps">Mbps</string>
+    <string name="ms">ms</string>
+    <string name="tap_to_start">Tap to start test</string>
+    <string name="testing_download">Testing download…</string>
+    <string name="testing_upload">Testing upload…</string>
+    <string name="testing_ping">Testing ping…</string>
+    <string name="test_complete">Test complete</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme">App Theme</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_saved_routers">Saved Routers</string>
+    <string name="settings_clear_data">Clear Saved Data</string>
+</resources>
