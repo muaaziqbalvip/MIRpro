@@ -1,0 +1,64 @@
+name: Build and Release APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        run: gradle assembleDebug --stacktrace
+
+      - name: Build release APK (unsigned)
+        run: gradle assembleRelease --stacktrace
+
+      - name: Set build version
+        id: version
+        run: echo "BUILD_TAG=v1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Rename APK outputs
+        run: |
+          mkdir -p release-output
+          cp app/build/outputs/apk/debug/app-debug.apk release-output/MIRouterPro-debug-${{ steps.version.outputs.BUILD_TAG }}.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk release-output/MIRouterPro-release-${{ steps.version.outputs.BUILD_TAG }}.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MIRouterPro-APKs
+          path: release-output/*.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.BUILD_TAG }}
+          name: MI Router Pro ${{ steps.version.outputs.BUILD_TAG }}
+          body: |
+            Automated build from commit ${{ github.sha }}
+
+            - Debug APK: for testing
+            - Release APK: unsigned, sign before Play Store upload
+          files: release-output/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
