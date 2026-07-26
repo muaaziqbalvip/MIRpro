@@ -8,9 +8,7 @@ import androidx.fragment.app.Fragment
 import com.mi.routermanagerpro.MainActivity
 import com.mi.routermanagerpro.R
 import com.mi.routermanagerpro.databinding.FragmentHomeBinding
-import com.mi.routermanagerpro.ui.wificonfig.RouterWebActivity
 import com.mi.routermanagerpro.util.NetworkUtils
-import android.content.Intent
 
 class HomeFragment : Fragment() {
 
@@ -29,9 +27,7 @@ class HomeFragment : Fragment() {
         refreshStatus()
 
         binding.btnOpenPanel.setOnClickListener {
-            val snapshot = NetworkUtils.getWifiSnapshot(requireContext())
-            val ip = if (snapshot.gatewayIp != "—") snapshot.gatewayIp else "192.168.100.1"
-            startActivity(RouterWebActivity.newIntent(requireContext(), ip))
+            (activity as? MainActivity)?.switchToTab(R.id.nav_wifi)
         }
 
         binding.btnScanDevices.setOnClickListener {

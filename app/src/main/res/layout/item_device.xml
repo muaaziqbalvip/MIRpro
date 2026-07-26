@@ -26,6 +26,13 @@
                 android:layout_height="20dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_phone_device" />
+
+            <View
+                android:id="@+id/statusDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/dot_online" />
         </FrameLayout>
 
         <LinearLayout
@@ -39,10 +46,12 @@
                 android:id="@+id/tvDeviceName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                tools:text="Device" />
+                tools:text="Redmi-Note-11" />
 
             <TextView
                 android:id="@+id/tvDeviceIp"
@@ -50,14 +59,38 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                tools:text="192.168.100.24" />
+                android:textSize="12sp"
+                tools:text="192.168.100.85 • 0e:8a:b9:6f:5f:90" />
+
+            <TextView
+                android:id="@+id/tvDeviceMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/accent_blue"
+                android:textSize="11sp"
+                tools:text="Online • 1 hour 18 minutes" />
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_check_circle" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBlockToggle"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginStart="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:paddingStart="12dp"
+            android:paddingTop="0dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="0dp"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/error_red"
+            android:textColor="@color/error_red"
+            tools:text="Block" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

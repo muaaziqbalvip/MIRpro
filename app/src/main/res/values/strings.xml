@@ -18,7 +18,7 @@
     <string name="ip_address">Device IP</string>
     <string name="link_speed">Link Speed</string>
 
-    <string name="open_router_panel">Open Router Panel</string>
+    <string name="open_router_panel">Router Login</string>
     <string name="scan_devices">Scan Devices</string>
     <string name="start_speed_test">Start Speed Test</string>
 
@@ -28,6 +28,13 @@
     <string name="connect_button">Connect</string>
     <string name="auto_detect">Auto-Detect Router</string>
     <string name="known_router_hint">Detected Huawei ONT/Router — default gateway is usually 192.168.100.1 or 192.168.1.1</string>
+    <string name="username_hint">Username (e.g. root or telecomadmin)</string>
+    <string name="password_hint">Password</string>
+    <string name="default_username">root</string>
+    <string name="login_in_progress">Logging in…</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_failed">Login failed — check username and password</string>
+    <string name="login_error">Could not reach router. Check IP and WiFi connection.</string>
 
     <string name="devices_title">Connected Devices</string>
     <string name="devices_scanning">Scanning network…</string>

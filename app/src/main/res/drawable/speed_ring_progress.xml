@@ -9,21 +9,11 @@
         </shape>
     </item>
     <item android:id="@android:id/progress">
-        <rotate
-            android:fromDegrees="0"
-            android:toDegrees="360"
-            android:pivotX="50%"
-            android:pivotY="50%">
-            <shape android:shape="ring"
-                android:innerRadiusRatio="2.6"
-                android:thickness="14dp"
-                android:useLevel="true">
-                <gradient
-                    android:type="sweep"
-                    android:startColor="@color/accent_blue_deep"
-                    android:centerColor="@color/accent_blue"
-                    android:endColor="@color/accent_cyan" />
-            </shape>
-        </rotate>
+        <shape android:shape="ring"
+            android:innerRadiusRatio="2.6"
+            android:thickness="14dp"
+            android:useLevel="true">
+            <solid android:color="@color/accent_blue" />
+        </shape>
     </item>
 </layer-list>

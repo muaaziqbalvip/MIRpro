@@ -34,11 +34,6 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".ui.wificonfig.RouterWebActivity"
-            android:exported="false"
-            android:label="@string/router_panel" />
-
     </application>
 
 </manifest>
