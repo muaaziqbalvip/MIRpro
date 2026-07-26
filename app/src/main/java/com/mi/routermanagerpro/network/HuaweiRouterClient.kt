@@ -40,9 +40,32 @@ class HuaweiRouterClient(private val baseIp: String) {
     }
 
     /**
+     * Step 0: GET the login page first, exactly like a real browser would,
+     * to capture any pre-session cookie the router issues before login.
+     * Some Huawei firmwares validate the login token against this cookie.
+     */
+    private fun fetchPreLoginCookie(): String? {
+        return try {
+            val url = URL("$baseUrl/login.asp")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.connectTimeout = 6000
+            conn.readTimeout = 6000
+            conn.instanceFollowRedirects = false
+            val code = conn.responseCode
+            val cookies = conn.headerFields["Set-Cookie"]
+            val combined = cookies?.joinToString("; ") { it.substringBefore(";") }
+            conn.disconnect()
+            combined
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
      * Step 1: fetch the one-time login token from GetRandCount.asp
      */
-    private fun fetchToken(): String? {
+    private fun fetchToken(preLoginCookie: String?): String? {
         return try {
             val url = URL("$baseUrl/asp/GetRandCount.asp")
             val conn = url.openConnection() as HttpURLConnection
@@ -51,6 +74,9 @@ class HuaweiRouterClient(private val baseIp: String) {
             conn.readTimeout = 6000
             conn.doOutput = true
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            if (!preLoginCookie.isNullOrBlank()) {
+                conn.setRequestProperty("Cookie", preLoginCookie)
+            }
             conn.outputStream.use { it.write(ByteArray(0)) }
 
             val code = conn.responseCode
@@ -74,7 +100,9 @@ class HuaweiRouterClient(private val baseIp: String) {
      */
     suspend fun login(username: String, password: String): HuaweiLoginResult =
         withContext(Dispatchers.IO) {
-            val token = fetchToken() ?: return@withContext HuaweiLoginResult.Error(
+            val preLoginCookie = fetchPreLoginCookie()
+
+            val token = fetchToken(preLoginCookie) ?: return@withContext HuaweiLoginResult.Error(
                 "Could not reach router or fetch security token. Check the IP and that you're on the router's WiFi."
             )
 
@@ -87,10 +115,12 @@ class HuaweiRouterClient(private val baseIp: String) {
                 conn.doOutput = true
                 conn.instanceFollowRedirects = false
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                conn.setRequestProperty(
-                    "Cookie",
+
+                val cookieToSend = if (!preLoginCookie.isNullOrBlank())
+                    preLoginCookie
+                else
                     "Cookie=body:Language:english:id=-1"
-                )
+                conn.setRequestProperty("Cookie", cookieToSend)
 
                 val encodedPassword = base64Encode(password)
                 val body = buildString {
@@ -110,17 +140,43 @@ class HuaweiRouterClient(private val baseIp: String) {
                 val allCookies = conn.headerFields["Set-Cookie"]
                 val combinedCookie = allCookies?.joinToString("; ") { it.substringBefore(";") }
 
+                // Read body for diagnostics (works for both success/redirect and error responses)
+                val responseBody = try {
+                    val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+                    stream?.bufferedReader()?.use { it.readText() }?.take(300) ?: ""
+                } catch (e: Exception) {
+                    ""
+                }
+
+                val location = conn.getHeaderField("Location") ?: ""
+
                 conn.disconnect()
+
+                val redirectsToLogin = location.contains("login.asp", ignoreCase = true)
+                val redirectsAway = (code == HttpURLConnection.HTTP_MOVED_TEMP ||
+                        code == HttpURLConnection.HTTP_MOVED_PERM) && !redirectsToLogin
 
                 if (!combinedCookie.isNullOrBlank()) {
                     sessionCookie = combinedCookie
                     HuaweiLoginResult.Success(sessionCookie!!)
+                } else if (redirectsAway && !preLoginCookie.isNullOrBlank()) {
+                    // No new cookie, but the router redirected us somewhere other than
+                    // back to the login page — treat the pre-login session cookie as
+                    // the now-authenticated session (some firmwares keep the same
+                    // session id across login rather than issuing a fresh one).
+                    sessionCookie = preLoginCookie
+                    HuaweiLoginResult.Success(sessionCookie!!)
                 } else if (code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM) {
-                    // Some firmwares redirect to index page on success without a fresh cookie
-                    HuaweiLoginResult.Success(sessionCookie ?: "")
+                    // Redirect with no cookie is ambiguous on this firmware — it can mean
+                    // either success (session set via a header our parsing missed) or
+                    // failure (bounced back to login.asp). Surface it as a failure with
+                    // diagnostic detail rather than silently assuming success.
+                    HuaweiLoginResult.Failed(
+                        "Router responded with a redirect but no session cookie (HTTP $code). Location: ${location.ifBlank { "none" }}"
+                    )
                 } else {
                     HuaweiLoginResult.Failed(
-                        "Login rejected by router. Check username/password (defaults: root / telecomadmin)."
+                        "Login rejected by router (HTTP $code). Check username/password. Response: ${responseBody.ifBlank { "(empty)" }}"
                     )
                 }
             } catch (e: Exception) {
